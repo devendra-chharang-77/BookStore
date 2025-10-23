@@ -15,3 +15,5 @@ function Courses() {
 }
 
 export default Courses;
+// TODO: Refactor component to handle empty state more gracefully
+// Refactor: Added TODO comment for future empty state handling in BookList.jsx
