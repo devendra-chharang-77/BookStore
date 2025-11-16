@@ -1,20 +1,27 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
+// 1. YEH IMPORT ADD KAREIN (Context file se)
+import { useAuth } from "../context/AuthProvider.jsx"; // <-- .jsx extension add kiya
+
 function Login() {
+  // 2. YEH LINE ADD KAREIN (Context se function lene ke liye)
+  const [authUser, setAuthUser] = useAuth();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
+  // 3. YEH POORA ON-SUBMIT FUNCTION UPDATE KAREIN
   const onSubmit = async (data) => {
     const userInfo = {
       email: data.email,
       password: data.password,
     };
+
     await axios
       .post("http://localhost:4001/user/login", userInfo)
       .then((res) => {
@@ -22,9 +29,14 @@ function Login() {
         if (res.data) {
           toast.success("Loggedin Successfully");
           document.getElementById("my_modal_3").close();
+
+          // PEHLE local storage aur context ko set karein
+          localStorage.setItem("Users", JSON.stringify(res.data.user));
+          setAuthUser(res.data.user); // <-- Yahi hai magic line
+
+          // FIR 1 second baad page reload karein
           setTimeout(() => {
             window.location.reload();
-            localStorage.setItem("Users", JSON.stringify(res.data.user));
           }, 1000);
         }
       })
@@ -32,10 +44,11 @@ function Login() {
         if (err.response) {
           console.log(err);
           toast.error("Error: " + err.response.data.message);
-          setTimeout(() => {}, 2000);
+          setTimeout(() => {}, 2000); // Is line ka waise koi kaam nahi hai, hata bhi sakte hain
         }
       });
   };
+
   return (
     <div>
       <dialog id="my_modal_3" className="modal">
@@ -81,7 +94,7 @@ function Login() {
               <br />
               {errors.password && (
                 <span className="text-sm text-red-500">
-                  This field is required
+                  This field is" required"
                 </span>
               )}
             </div>
